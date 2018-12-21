@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  CrossAccount:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: 
+                - <arn of role used for Lambda execution>
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+
+      Path: /
+
+  S3CopyPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub mypolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Action:
+              - s3:ListBucket
+              - s3:GetObject
+            Resource:
+              - arn:aws:s3:::<source-bucket-name>
+              - arn:aws:s3:::<source-bucket-name>/*
+          -
+            Effect: Allow
+            Action:
+              - s3:ListBucket
+              - s3:PutObject
+              - s3:PutObjectAcl
+            Resource:
+              - arn:aws:s3:::<destinaton-bucket-name>
+              - arn:aws:s3:::<destinaton-bucket-name>/*
+      Roles:
+        -
+          !Ref CrossAccount
